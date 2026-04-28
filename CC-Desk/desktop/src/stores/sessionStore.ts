@@ -32,12 +32,19 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
     set({ isLoading: true, error: null })
     try {
       const { sessions: raw } = await sessionsApi.list({ project, limit: 100 })
-      // Deduplicate by session ID — keep the most recently modified entry
+      // 以现有 session 为基底，确保乐观更新的 workDir 不会被 API 返回的 null 覆盖
       const byId = new Map<string, SessionListItem>()
+      for (const s of get().sessions) {
+        byId.set(s.id, s)
+      }
       for (const s of raw) {
         const existing = byId.get(s.id)
         if (!existing || new Date(s.modifiedAt) > new Date(existing.modifiedAt)) {
-          byId.set(s.id, s)
+          byId.set(s.id, {
+            ...s,
+            workDir: s.workDir ?? existing?.workDir ?? null,
+            projectPath: s.projectPath || existing?.projectPath || '',
+          })
         }
       }
       const sessions = [...byId.values()]

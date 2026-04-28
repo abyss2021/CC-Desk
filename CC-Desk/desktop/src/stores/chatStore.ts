@@ -361,7 +361,9 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       return
     }
 
-    wsManager.send(sessionId, { type: 'user_message', content, attachments })
+    const session = useSessionStore.getState().sessions.find(s => s.id === sessionId)
+    const cwd = session?.workDir ?? undefined
+    wsManager.send(sessionId, { type: 'user_message', content, attachments, cwd })
   },
 
   respondToPermission: (sessionId, requestId, allowed, options) => {

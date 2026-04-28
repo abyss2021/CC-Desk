@@ -114,8 +114,7 @@ export function DirectoryPicker({ value, onChange }: Props) {
 
   const handleChooseFolder = async () => {
     if (isTauriRuntime()) {
-      // Desktop: native OS folder dialog
-      setIsOpen(false)
+      // 桌面端：原生系统文件夹对话框。保持下拉菜单打开，等对话框关闭后再关闭。
       try {
         const { open } = await import('@tauri-apps/plugin-dialog')
         const selected = await open({
@@ -123,7 +122,12 @@ export function DirectoryPicker({ value, onChange }: Props) {
           multiple: false,
           title: t('dirPicker.chooseProjectFolder'),
         })
-        if (selected) onChange(selected)
+        if (selected) {
+          onChange(selected)
+          setIsOpen(false)
+          setMode('recent')
+          cachedProjects = null
+        }
       } catch (err) {
         console.error('[DirectoryPicker] Failed to open folder dialog:', err)
       }
@@ -154,7 +158,7 @@ export function DirectoryPicker({ value, onChange }: Props) {
             <span className="material-symbols-outlined text-[14px] text-[var(--color-text-secondary)]">folder</span>
           )}
           <span className="font-medium text-[var(--color-text-primary)]">
-            {selectedProject?.repoName || selectedProject?.projectName || value.split('/').pop()}
+            {selectedProject?.repoName || selectedProject?.projectName || value.split(/[\/\\]/).pop()}
           </span>
           {selectedProject?.branch && (
             <>

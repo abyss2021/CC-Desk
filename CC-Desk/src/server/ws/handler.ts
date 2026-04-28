@@ -9,6 +9,7 @@
 import type { ServerWebSocket } from 'bun'
 import type { ClientMessage, ServerMessage } from './events.js'
 import * as os from 'node:os'
+import * as path from 'node:path'
 import {
   ConversationStartupError,
   conversationService,
@@ -251,6 +252,19 @@ async function handleUserMessage(
     })
     sendMessage(ws, { type: 'status', state: 'idle' })
     return
+  }
+
+  // 如果客户端传入了 cwd 且与当前 CLI 工作目录不一致，则重启 CLI
+  if (message.cwd) {
+    const currentWorkDir = conversationService.getSessionWorkDir(sessionId)
+    const normalizedCurrent = normalizePath(currentWorkDir)
+    const normalizedRequested = normalizePath(message.cwd)
+    if (normalizedCurrent && normalizedCurrent !== normalizedRequested) {
+      console.log(`[WS] WorkDir mismatch for ${sessionId}: current=${currentWorkDir}, requested=${message.cwd}, restarting CLI`)
+      conversationService.stopSession(sessionId)
+      await sessionService.appendSessionMetadata(sessionId, { workDir: message.cwd })
+      await ensureCliSessionStarted(ws, sessionId, 'user_message')
+    }
   }
 
   // Track user message for title generation
@@ -669,6 +683,12 @@ async function resolveSessionWorkDir(sessionId: string, fallback = os.homedir())
     )
   }
   return workDir
+}
+
+function normalizePath(p: string): string {
+  if (!p) return ''
+  const normalized = path.resolve(p)
+  return process.platform === 'win32' ? normalized.toLowerCase() : normalized
 }
 
 async function ensureCliSessionStarted(
