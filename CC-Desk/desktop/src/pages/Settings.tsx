@@ -6,7 +6,7 @@ import { Modal } from '../components/shared/Modal'
 import { ConfirmDialog } from '../components/shared/ConfirmDialog'
 import { Input } from '../components/shared/Input'
 import { Button } from '../components/shared/Button'
-import type { PermissionMode, EffortLevel, ThemeMode } from '../types/settings'
+import type { EffortLevel, ThemeMode } from '../types/settings'
 import type { Locale } from '../i18n'
 import type { SavedProvider, UpdateProviderInput, ProviderTestResult, ModelMapping, ApiFormat } from '../types/provider'
 import type { ProviderPreset } from '../types/providerPreset'
@@ -25,7 +25,6 @@ import { ComputerUseSettings } from './ComputerUseSettings'
 import { McpSettings } from './McpSettings'
 import { TerminalSettings } from './TerminalSettings'
 import { useUIStore, type SettingsTab } from '../stores/uiStore'
-import { ClaudeOfficialLogin } from '../components/settings/ClaudeOfficialLogin'
 
 
 export function Settings() {
@@ -46,7 +45,6 @@ export function Settings() {
         <div className="w-[180px] border-r border-[var(--color-border)] py-3 flex-shrink-0 flex flex-col">
           <div className="flex-1">
             <TabButton icon="dns" label={t('settings.tab.providers')} active={activeTab === 'providers'} onClick={() => setActiveTab('providers')} />
-            <TabButton icon="shield" label={t('settings.tab.permissions')} active={activeTab === 'permissions'} onClick={() => setActiveTab('permissions')} />
             <TabButton icon="tune" label={t('settings.tab.general')} active={activeTab === 'general'} onClick={() => setActiveTab('general')} />
             <TabButton icon="chat" label={t('settings.tab.adapters')} active={activeTab === 'adapters'} onClick={() => setActiveTab('adapters')} />
             <TabButton icon="terminal" label={t('settings.tab.terminal')} active={activeTab === 'terminal'} onClick={() => setActiveTab('terminal')} />
@@ -64,7 +62,6 @@ export function Settings() {
         {/* Tab content */}
         <div className="flex-1 overflow-y-auto px-8 py-6">
           {activeTab === 'providers' && <ProviderSettings />}
-          {activeTab === 'permissions' && <PermissionSettings />}
           {activeTab === 'general' && <GeneralSettings />}
           {activeTab === 'adapters' && <AdapterSettings />}
           {activeTab === 'terminal' && <TerminalSettings />}
@@ -109,7 +106,6 @@ function ProviderSettings() {
     fetchPresets,
     deleteProvider,
     activateProvider,
-    activateOfficial,
     testProvider,
   } = useProviderStore()
   const fetchSettings = useSettingsStore((s) => s.fetchAll)
@@ -163,12 +159,7 @@ function ProviderSettings() {
     await fetchSettings()
   }
 
-  const handleActivateOfficial = async () => {
-    await activateOfficial()
-    await fetchSettings()
-  }
-
-  const isOfficialActive = activeId === null
+  // activeId === null 表示使用本地 Anthropic API 设置
 
   return (
     <div className="max-w-2xl">
@@ -181,37 +172,6 @@ function ProviderSettings() {
           <span className="material-symbols-outlined text-[16px]">add</span>
           {t('settings.providers.addProvider')}
         </Button>
-      </div>
-
-      {/* Official provider — always visible at top */}
-      <div
-        className={`relative flex flex-col rounded-xl border transition-all mb-2 ${
-          isOfficialActive
-            ? 'border-[var(--color-brand)] bg-[var(--color-surface-container)] shadow-[var(--shadow-focus-ring)]'
-            : 'border-[var(--color-border)] hover:border-[var(--color-border-focus)] cursor-pointer'
-        }`}
-      >
-        <div
-          className="flex items-center gap-4 px-4 py-3.5"
-          onClick={() => !isOfficialActive && handleActivateOfficial()}
-        >
-          <span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${isOfficialActive ? 'bg-[var(--color-success)]' : 'bg-[var(--color-text-tertiary)]'}`} />
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-[var(--color-text-primary)]">{t('settings.providers.officialName')}</span>
-              {isOfficialActive && (
-                <span className="px-1.5 py-0.5 text-[10px] font-bold rounded border border-[var(--color-brand)]/18 bg-[var(--color-brand)]/14 text-[var(--color-brand)] leading-none">{t('settings.providers.default')}</span>
-              )}
-            </div>
-            <div className="text-xs text-[var(--color-text-tertiary)] mt-0.5">{t('settings.providers.officialDesc')}</div>
-          </div>
-        </div>
-
-        {isOfficialActive && (
-          <div className="px-4 pb-4 pt-3 border-t border-[var(--color-border-separator)]">
-            <ClaudeOfficialLogin />
-          </div>
-        )}
       </div>
 
       {/* Saved providers */}
@@ -670,53 +630,6 @@ function ProviderFormModal({ open, onClose, mode, provider, presets }: ProviderF
 
 
 // ─── Permission Settings ──────────────────────────────────────
-
-function PermissionSettings() {
-  const { permissionMode, setPermissionMode } = useSettingsStore()
-  const t = useTranslation()
-
-  const MODES: Array<{ mode: PermissionMode; icon: string; label: string; desc: string }> = [
-    { mode: 'default', icon: 'verified_user', label: t('settings.permissions.default'), desc: t('settings.permissions.defaultDesc') },
-    { mode: 'acceptEdits', icon: 'edit_note', label: t('settings.permissions.acceptEdits'), desc: t('settings.permissions.acceptEditsDesc') },
-    { mode: 'plan', icon: 'architecture', label: t('settings.permissions.plan'), desc: t('settings.permissions.planDesc') },
-    { mode: 'bypassPermissions', icon: 'bolt', label: t('settings.permissions.bypass'), desc: t('settings.permissions.bypassDesc') },
-  ]
-
-  return (
-    <div className="max-w-xl">
-      <h2 className="text-base font-semibold text-[var(--color-text-primary)] mb-1">{t('settings.permissions.title')}</h2>
-      <p className="text-sm text-[var(--color-text-tertiary)] mb-4">{t('settings.permissions.description')}</p>
-
-      <div className="flex flex-col gap-2">
-        {MODES.map(({ mode, icon, label, desc }) => {
-          const isSelected = permissionMode === mode
-          return (
-            <button
-              key={mode}
-              onClick={() => setPermissionMode(mode)}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-all text-left ${
-                isSelected
-                  ? 'border-[var(--color-brand)] bg-[var(--color-surface-container)] shadow-[var(--shadow-focus-ring)]'
-                  : 'border-[var(--color-border)] hover:border-[var(--color-border-focus)] hover:bg-[var(--color-surface-hover)]'
-              }`}
-            >
-              <span className="material-symbols-outlined text-[20px] text-[var(--color-text-secondary)]">{icon}</span>
-              <div className="flex-1">
-                <div className="text-sm font-semibold text-[var(--color-text-primary)]">{label}</div>
-                <div className="text-xs text-[var(--color-text-tertiary)]">{desc}</div>
-              </div>
-              {isSelected && (
-                <span className="material-symbols-outlined text-[18px] text-[var(--color-brand)]" style={{ fontVariationSettings: "'FILL' 1" }}>
-                  check_circle
-                </span>
-              )}
-            </button>
-          )
-        })}
-      </div>
-    </div>
-  )
-}
 
 // ─── General Settings ──────────────────────────────────────
 
@@ -1421,7 +1334,6 @@ function AboutSettings() {
           <span className="material-symbols-outlined text-[16px] text-[var(--color-text-tertiary)]">open_in_new</span>
         </button>
       </div>
-
     </div>
   )
 }

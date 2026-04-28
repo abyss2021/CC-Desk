@@ -8,7 +8,6 @@ import { useSessionRuntimeStore } from '../../stores/sessionRuntimeStore'
 import { useTeamStore } from '../../stores/teamStore'
 import { sessionsApi } from '../../api/sessions'
 import { PermissionModeSelector } from '../controls/PermissionModeSelector'
-import { ModelSelector } from '../controls/ModelSelector'
 import type { AttachmentRef } from '../../types/chat'
 import { AttachmentGallery } from './AttachmentGallery'
 import { ProjectContextChip } from '../shared/ProjectContextChip'
@@ -665,14 +664,35 @@ export function ChatInput({ variant = 'default' }: ChatInputProps) {
                   </div>
 
                   <PermissionModeSelector />
+                  {!hasMessages ? (
+                    <DirectoryPicker
+                      value={resolvedWorkDir || ''}
+                      onChange={async (newWorkDir) => {
+                        if (!activeTabId) return
+                        const oldId = activeTabId
+                        const { deleteSession, createSession } = useSessionStore.getState()
+                        const { replaceTabSession } = useTabStore.getState()
+                        const { disconnectSession, connectToSession } = useChatStore.getState()
+                        const newId = await createSession(newWorkDir)
+                        useSessionRuntimeStore.getState().moveSelection(oldId, newId)
+                        disconnectSession(oldId)
+                        replaceTabSession(oldId, newId)
+                        connectToSession(newId)
+                        deleteSession(oldId).catch(() => {})
+                      }}
+                    />
+                  ) : (
+                    <ProjectContextChip
+                      workDir={resolvedWorkDir}
+                      repoName={gitInfo?.repoName || null}
+                      branch={gitInfo?.branch || null}
+                    />
+                  )}
                 </>
               )}
             </div>
 
             <div className="flex items-center gap-2">
-              {!isMemberSession && activeTabId && (
-                <ModelSelector runtimeKey={activeTabId} disabled={isActive} />
-              )}
               <button
                 onClick={!isMemberSession && isActive ? () => stopGeneration(activeTabId!) : handleSubmit}
                 disabled={!isMemberSession && isActive ? false : !canSubmit}
@@ -694,34 +714,6 @@ export function ChatInput({ variant = 'default' }: ChatInputProps) {
 
         <input ref={fileInputRef} type="file" multiple className="hidden" onChange={handleFileSelect} />
 
-        {!isMemberSession && (
-          <div className="mt-3 px-1">
-            {hasMessages ? (
-              <ProjectContextChip
-                workDir={resolvedWorkDir}
-                repoName={gitInfo?.repoName || null}
-                branch={gitInfo?.branch || null}
-              />
-            ) : (
-              <DirectoryPicker
-                value={resolvedWorkDir || ''}
-                onChange={async (newWorkDir) => {
-                  if (!activeTabId) return
-                  const oldId = activeTabId
-                  const { deleteSession, createSession } = useSessionStore.getState()
-                  const { replaceTabSession } = useTabStore.getState()
-                  const { disconnectSession, connectToSession } = useChatStore.getState()
-                  const newId = await createSession(newWorkDir)
-                  useSessionRuntimeStore.getState().moveSelection(oldId, newId)
-                  disconnectSession(oldId)
-                  replaceTabSession(oldId, newId)
-                  connectToSession(newId)
-                  deleteSession(oldId).catch(() => {})
-                }}
-              />
-            )}
-          </div>
-        )}
       </div>
     </div>
   )

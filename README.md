@@ -39,10 +39,14 @@ powershell -ExecutionPolicy Bypass -File .\windows\build-windows-installer.ps1
 
 ## 修改部分
 
-本项目基于Claude-Code-Haha修改了以下部分：
+本项目基于Claude-Code-Haha 0.1.7版本修改了以下部分：
 - 修改原窗口界面皮肤
 - 将Claude-Code-Haha全部替换为CC-Desk
 - 修复开启会话时设置文件目录bug
+- 删除官方服务商卡片
+- 删除设置页面中的权限设置页面
+- 删除发送框模型选择
+- 将文件选择框放在发送框中的权限选择右边
 
 
 ## 免责声明
