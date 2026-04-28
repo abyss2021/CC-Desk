@@ -4,29 +4,38 @@
 
 ## 使用说明
 
-### 环境要求
-
-- [Bun](https://bun.sh) 运行时
-
-### 安装
+### 源码运行
 
 ```bash
 bun install
 cp .env.example .env
 # 编辑 .env 填入 API Key
+./bin/claude-haha              # macOS / Linux
+bun --env-file=.env ./src/entrypoints/cli.tsx  # Windows
 ```
 
-### 启动
+### Windows 桌面端
 
-```bash
-# macOS / Linux
-./bin/claude-haha
+提供两种分发方式，详见 [windows/README.md](windows/README.md)。
 
-# Windows（Git Bash 或 PowerShell）
-bun --env-file=.env ./src/entrypoints/cli.tsx
+| 方式 | 文件 | 说明 |
+|------|------|------|
+| **安装版** | `CC-Desk-Setup-{version}-x64.exe` | 双击安装，可选路径，开始菜单快捷方式 |
+| **便携版** | `CC-Desk-Portable-{version}-x64.zip` | 解压即用，不写注册表 |
+
+**系统要求**：Windows 10+ x64，WebView2 预装
+
+**构建**：
+
+```powershell
+# 便携版
+powershell -ExecutionPolicy Bypass -File .\windows\build-windows-portable.ps1
+
+# 安装版
+powershell -ExecutionPolicy Bypass -File .\windows\build-windows-installer.ps1
 ```
 
-更多功能（桌面端、Computer Use、Telegram/飞书适配器等）详见 [CC-Desk/README.md](CC-Desk/README.md)。
+更多功能（Computer Use、Telegram/飞书适配器等）详见 [CC-Desk/README.md](CC-Desk/README.md)。
 
 ## 修改部分
 
