@@ -11,7 +11,6 @@ import { SETTINGS_TAB_ID, useTabStore } from '../stores/tabStore'
 import { OFFICIAL_DEFAULT_MODEL_ID } from '../constants/modelCatalog'
 import { DirectoryPicker } from '../components/shared/DirectoryPicker'
 import { PermissionModeSelector } from '../components/controls/PermissionModeSelector'
-import { ModelSelector } from '../components/controls/ModelSelector'
 import { AttachmentGallery } from '../components/chat/AttachmentGallery'
 import { FileSearchMenu, type FileSearchMenuHandle } from '../components/chat/FileSearchMenu'
 import { LocalSlashCommandPanel, type LocalSlashCommandName } from '../components/chat/LocalSlashCommandPanel'
@@ -583,10 +582,10 @@ export function EmptySession() {
                 </div>
 
                 <PermissionModeSelector workDir={workDir} />
+                <DirectoryPicker value={workDir} onChange={setWorkDir} />
               </div>
 
               <div className="flex items-center gap-3">
-                <ModelSelector runtimeKey={DRAFT_RUNTIME_SELECTION_KEY} disabled={isSubmitting} />
                 <button
                   onClick={handleSubmit}
                   disabled={(!input.trim() && attachments.length === 0) || isSubmitting}
@@ -597,10 +596,6 @@ export function EmptySession() {
                 </button>
               </div>
             </div>
-          </div>
-
-          <div>
-            <DirectoryPicker value={workDir} onChange={setWorkDir} />
           </div>
         </div>
       </div>

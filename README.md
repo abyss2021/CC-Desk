@@ -1,53 +1,66 @@
 # CC-Desk
 
-本项目魔改自 [Claude-Code-Haha](https://github.com/NanmiCoder/cc-haha)。
+基于 [Claude-Code-Haha](https://github.com/NanmiCoder/cc-haha) 魔改的本地化 AI 编程助手桌面应用，支持接入任意 Anthropic 兼容 API（MiniMax、OpenRouter、DeepSeek 等）。
 
-## 使用说明
+## 界面截图
 
-### 源码运行
+![截图一](CC-Desk/docs/images/01-screenshot.png)
 
-```bash
-bun install
-cp .env.example .env
-# 编辑 .env 填入 API Key
-./bin/claude-haha              # macOS / Linux
-bun --env-file=.env ./src/entrypoints/cli.tsx  # Windows
-```
+![截图二](CC-Desk/docs/images/02-screenshot.png)
 
-### Windows 桌面端
+## 功能概览
 
-提供两种分发方式，详见 [windows/README.md](windows/README.md)。
+### 多模型支持
+- 接入 Anthropic、OpenAI、OpenRouter、Ollama、Azure OpenAI、Google AI 等任意兼容 API
+- 预设快速创建，支持 `anthropic` / `openai_chat` / `openai_responses` 多种 API 格式
+- 四角色模型映射（main / haiku / sonnet / opus）
 
-| 方式 | 文件 | 说明 |
-|------|------|------|
-| **安装版** | `CC-Desk-Setup-{version}-x64.exe` | 双击安装，可选路径，开始菜单快捷方式 |
-| **便携版** | `CC-Desk-Portable-{version}-x64.zip` | 解压即用，不写注册表 |
+### 对话与编辑
+- 流式 Markdown 渲染 + Shiki 语法高亮
+- Diff 视图展示代码变更，词级别高亮
+- 附件拖拽上传、粘贴图片、文件搜索（`@`）、斜杠命令（`/`）
 
-**系统要求**：Windows 10+ x64，WebView2 预装
+### 权限控制
+- 四种模式：询问权限 / 自动接受编辑 / 计划模式 / 绕过权限
+- 发送框内一键切换
 
-**构建**：
+### 多会话与标签管理
+- 多标签并行会话，拖拽排序
+- 会话状态持久化，重启恢复
+- 工作目录独立选择，Git 仓库自动识别
 
-```powershell
-# 便携版
-powershell -ExecutionPolicy Bypass -File .\windows\build-windows-portable.ps1
+### Agent Teams
+- 多代理协作可视化
+- 团队成员状态监控（running / idle / completed / error）
 
-# 安装版
-powershell -ExecutionPolicy Bypass -File .\windows\build-windows-installer.ps1
-```
+### 定时任务
+- Cron 表达式定时触发 AI 任务
+- 运行历史记录，启用/禁用开关
 
-更多功能（Computer Use、Telegram/飞书适配器等）详见 [CC-Desk/README.md](CC-Desk/README.md)。
+### Computer Use
+- 截屏、鼠标、键盘操作（Python Bridge 实现）
+- 设置页查看环境状态、依赖安装
 
-## 修改部分
+### IM 接入
+- Telegram / 飞书机器人接入
+- 远程对话、权限按钮、会话管理
 
-本项目基于Claude-Code-Haha 0.1.7版本修改了以下部分：
-- 修改原窗口界面皮肤
-- 将Claude-Code-Haha全部替换为CC-Desk
-- 修复开启会话时设置文件目录bug
-- 删除官方服务商卡片
-- 删除设置页面中的权限设置页面
-- 删除发送框模型选择
-- 将文件选择框放在发送框中的权限选择右边
+### 其他
+- 浅色/深色主题切换
+- 中英文国际化
+- Tauri 2 自动更新
 
+## 修改说明
+
+本项目基于 Claude-Code-Haha 0.1.7 版本，主要修改：
+
+- 重写窗口 UI 皮肤（暖色调设计语言）
+- 将 Claude-Code-Haha 全部替换为 CC-Desk
+- 修复会话工作目录（workDir）的选择和传播问题
+- 删除官方服务商卡片，改为本地 API 设置
+- 删除设置页权限设置标签（与发送框权限选择器重复）
+- 删除发送框按会话模型选择器（统一使用全局设置）
+- 文件选择框移至发送栏权限选择器右侧
 
 ## 免责声明
 
