@@ -39,25 +39,10 @@ powershell -ExecutionPolicy Bypass -File .\windows\build-windows-installer.ps1
 
 ## 修改部分
 
-泄露源码无法直接运行，本项目修复了以下问题：
+本项目基于Claude-Code-Haha修改了以下部分：
+修改原窗口界面皮肤
+将Claude-Code-Haha全部替换为CC-Desk
 
-| 问题 | 根因 | 修复方式 |
-|------|------|----------|
-| TUI 不启动 | 入口脚本将无参数启动路由到 recovery CLI | 恢复走 `cli.tsx` 完整入口 |
-| 启动卡死 | `verify` skill 导入缺失的 `.md` 文件，Bun text loader 无限挂起 | 创建 stub `.md` 文件 |
-| `--print` 卡死 | `filePersistence/types.ts` 缺失 | 创建类型桩文件 |
-| `--print` 卡死 | `ultraplan/prompt.txt` 缺失 | 创建资源桩文件 |
-| Enter 键无响应 | `modifiers-napi` native 包缺失，`isModifierPressed()` 抛异常导致 `handleEnter` 中断 | 添加 try-catch 容错 |
-| setup 被跳过 | `preload.ts` 自动设置 `LOCAL_RECOVERY=1` 跳过全部初始化 | 移除默认设置 |
-
-此外还扩展了以下功能：
-- 支持自定义 API 端点和第三方模型（MiniMax、OpenRouter 等）
-- Computer Use 桌面控制（macOS / Windows）
-- Tauri 2 + React 图形化桌面端
-- Telegram / 飞书 IM 远程控制
-- 多 Agent 并行编排系统
-- Skills 可扩展能力插件
-- 跨会话持久化记忆系统
 
 ## 免责声明
 

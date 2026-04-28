@@ -30,6 +30,12 @@ desktop/src-tauri/target/
 desktop/src-tauri/gen/
 desktop/package-lock.json
 
+# Windows build output
+windows/CC-Desk-Portable-*.zip
+windows/portable-windows-x64/
+windows/installer-output/
+windows/__pycache__/
+
 # Desktop brand asset candidates (keep only selected ones in public/)
 desktop/brand-assets/
 
