@@ -1,6 +1,6 @@
 # CC-Desk
 
-本项目魔改自 [Claude Code](https://github.com/anthropics/claude-code)，基于泄露源码修复并扩展。
+本项目魔改自 [Claude-Code-Haha](https://github.com/NanmiCoder/cc-haha)。
 
 ## 使用说明
 
@@ -40,10 +40,11 @@ powershell -ExecutionPolicy Bypass -File .\windows\build-windows-installer.ps1
 ## 修改部分
 
 本项目基于Claude-Code-Haha修改了以下部分：
-修改原窗口界面皮肤
-将Claude-Code-Haha全部替换为CC-Desk
+- 修改原窗口界面皮肤
+- 将Claude-Code-Haha全部替换为CC-Desk
+- 修复开启会话时设置文件目录bug
 
 
 ## 免责声明
 
-本仓库基于 2026-03-31 从 Anthropic npm registry 泄露的 Claude Code 源码。所有原始源码版权归 [Anthropic](https://www.anthropic.com) 所有。本项目仅供学习和研究用途。
+本项目仅供学习和研究用途。
